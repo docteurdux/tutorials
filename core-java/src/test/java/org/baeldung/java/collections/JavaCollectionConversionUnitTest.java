@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -12,176 +11,84 @@ import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.junit.Test;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.common.primitives.Ints;
-
-@SuppressWarnings("unused")
 public class JavaCollectionConversionUnitTest {
 
-    // List -> array; array -> List
+	// fakes generics for array instanciation, because Java forbids instanciation of
+	// arrays of generics
+	class U {
+	};
 
-    @Test
-    public final void givenUsingCoreJava_whenArrayConvertedToList_thenCorrect() {
-        final Integer[] sourceArray = { 0, 1, 2, 3, 4, 5 };
-        final List<Integer> targetList = Arrays.asList(sourceArray);
-    }
+	public static class WithCommons {
 
-    @Test
-    public final void givenUsingCoreJava_whenListConvertedToArray_thenCorrect() {
-        final List<Integer> sourceList = Arrays.asList(0, 1, 2, 3, 4, 5);
-        final Integer[] targetArray = sourceList.toArray(new Integer[sourceList.size()]);
-    }
+		public <T> void arrayToList(T[] array) {
+			List<T> list = new ArrayList<>(array.length);
+			CollectionUtils.addAll(list, array);
+		}
 
-    @Test
-    public final void givenUsingGuava_whenArrayConvertedToList_thenCorrect() {
-        final Integer[] sourceArray = { 0, 1, 2, 3, 4, 5 };
-        final List<Integer> targetList = Lists.newArrayList(sourceArray);
-    }
+		public <T> Set<T> arrayToSet(T[] array) {
+			final Set<T> set = new HashSet<>(6);
+			CollectionUtils.addAll(set, array);
+			return set;
+		}
 
-    @Test
-    public final void givenUsingGuava_whenListConvertedToArray_thenCorrect() {
-        final List<Integer> sourceList = Lists.newArrayList(0, 1, 2, 3, 4, 5);
-        final int[] targetArray = Ints.toArray(sourceList);
-    }
+		public final Set<Integer> listToSet(List<Integer> list) {
+			final Set<Integer> set = new HashSet<>(list.size());
+			CollectionUtils.addAll(set, list);
+			return set;
+		}
 
-    @Test
-    public final void givenUsingCommonsCollections_whenArrayConvertedToList_thenCorrect() {
-        final Integer[] sourceArray = { 0, 1, 2, 3, 4, 5 };
-        final List<Integer> targetList = new ArrayList<>(6);
-        CollectionUtils.addAll(targetList, sourceArray);
-    }
+		public int[] setToArrayOfPrimitive(Set<Integer> set) {
+			return ArrayUtils.toPrimitive(set.toArray(new Integer[set.size()]));
+		}
 
-    // Set -> array; array -> Set
+		public final List<Integer> setToList(Set<Integer> set) {
+			final List<Integer> list = new ArrayList<>(set.size());
+			CollectionUtils.addAll(list, set);
+			return list;
+		}
 
-    @Test
-    public final void givenUsingCoreJavaV1_whenArrayConvertedToSet_thenCorrect() {
-        final Integer[] sourceArray = { 0, 1, 2, 3, 4, 5 };
-        final Set<Integer> targetSet = new HashSet<Integer>(Arrays.asList(sourceArray));
-    }
+	}
 
-    @Test
-    public final void givenUsingCoreJavaV2_whenArrayConvertedToSet_thenCorrect() {
-        final Integer[] sourceArray = { 0, 1, 2, 3, 4, 5 };
-        final Set<Integer> targetSet = new HashSet<Integer>();
-        Collections.addAll(targetSet, sourceArray);
-    }
+	public <T> List<T> arrayToList(T[] array) {
+		return Arrays.asList(array);
+	}
 
-    @Test
-    public final void givenUsingCoreJava_whenSetConvertedToArray_thenCorrect() {
-        final Set<Integer> sourceSet = Sets.newHashSet(0, 1, 2, 3, 4, 5);
-        final Integer[] targetArray = sourceSet.toArray(new Integer[sourceSet.size()]);
-    }
+	public <T> Set<T> arrayToSet(T[] array) {
+		return new HashSet<T>(Arrays.asList(array));
+	}
 
-    @Test
-    public final void givenUsingGuava_whenArrayConvertedToSet_thenCorrect() {
-        final Integer[] sourceArray = { 0, 1, 2, 3, 4, 5 };
-        final Set<Integer> targetSet = Sets.newHashSet(sourceArray);
-    }
+	public <T> void arrayToSetWithAddAll(T[] array) {
+		final Set<T> set = new HashSet<T>();
+		Collections.addAll(set, array);
+	}
 
-    @Test
-    public final void givenUsingGuava_whenSetConvertedToArray_thenCorrect() {
-        final Set<Integer> sourceSet = Sets.newHashSet(0, 1, 2, 3, 4, 5);
-        final int[] targetArray = Ints.toArray(sourceSet);
-    }
+	public U[] listToArray(List<U> list) {
+		return list.toArray(new U[list.size()]);
+	}
 
-    @Test
-    public final void givenUsingCommonsCollections_whenArrayConvertedToSet_thenCorrect() {
-        final Integer[] sourceArray = { 0, 1, 2, 3, 4, 5 };
-        final Set<Integer> targetSet = new HashSet<>(6);
-        CollectionUtils.addAll(targetSet, sourceArray);
-    }
+	public <T> Set<T> listToSet(List<T> list) {
+		return new HashSet<>(list);
+	}
 
-    @Test
-    public final void givenUsingCommonsCollections_whenSetConvertedToArray_thenCorrect() {
-        final Set<Integer> sourceSet = Sets.newHashSet(0, 1, 2, 3, 4, 5);
-        final Integer[] targetArray = sourceSet.toArray(new Integer[sourceSet.size()]);
-    }
+	public <T> U[] mapToArrayOfValues(Map<T, U> map) {
+		Collection<U> values = map.values();
+		return values.toArray(new U[values.size()]);
+	}
 
-    @Test
-    public final void givenUsingCommonsCollections_whenSetConvertedToArrayOfPrimitives_thenCorrect() {
-        final Set<Integer> sourceSet = Sets.newHashSet(0, 1, 2, 3, 4, 5);
-        final Integer[] targetArray = sourceSet.toArray(new Integer[sourceSet.size()]);
-        final int[] primitiveTargetArray = ArrayUtils.toPrimitive(targetArray);
-    }
+	public <K, V> List<V> mapToListOfValues(Map<K, V> map) {
+		return new ArrayList<>(map.values());
+	}
 
-    // Set -> List; List -> Set
+	public <K, V> Set<V> mapToSetOfValues(Map<K, V> map) {
+		return new HashSet<>(map.values());
+	}
 
-    public final void givenUsingCoreJava_whenSetConvertedToList_thenCorrect() {
-        final Set<Integer> sourceSet = Sets.newHashSet(0, 1, 2, 3, 4, 5);
-        final List<Integer> targetList = new ArrayList<>(sourceSet);
-    }
+	public U[] setToArray(Set<U> set) {
+		return set.toArray(new U[set.size()]);
+	}
 
-    public final void givenUsingCoreJava_whenListConvertedToSet_thenCorrect() {
-        final List<Integer> sourceList = Lists.newArrayList(0, 1, 2, 3, 4, 5);
-        final Set<Integer> targetSet = new HashSet<>(sourceList);
-    }
-
-    public final void givenUsingGuava_whenSetConvertedToList_thenCorrect() {
-        final Set<Integer> sourceSet = Sets.newHashSet(0, 1, 2, 3, 4, 5);
-        final List<Integer> targetList = Lists.newArrayList(sourceSet);
-    }
-
-    public final void givenUsingGuava_whenListConvertedToSet_thenCorrect() {
-        final List<Integer> sourceList = Lists.newArrayList(0, 1, 2, 3, 4, 5);
-        final Set<Integer> targetSet = Sets.newHashSet(sourceList);
-    }
-
-    public final void givenUsingCommonsCollections_whenListConvertedToSet_thenCorrect() {
-        final List<Integer> sourceList = Lists.newArrayList(0, 1, 2, 3, 4, 5);
-
-        final Set<Integer> targetSet = new HashSet<>(6);
-        CollectionUtils.addAll(targetSet, sourceList);
-    }
-
-    public final void givenUsingCommonsCollections_whenSetConvertedToList_thenCorrect() {
-        final Set<Integer> sourceSet = Sets.newHashSet(0, 1, 2, 3, 4, 5);
-
-        final List<Integer> targetList = new ArrayList<>(6);
-        CollectionUtils.addAll(targetList, sourceSet);
-    }
-
-    // Map (values) -> Array, List, Set
-
-    @Test
-    public final void givenUsingCoreJava_whenMapValuesConvertedToArray_thenCorrect() {
-        final Map<Integer, String> sourceMap = createMap();
-
-        final Collection<String> values = sourceMap.values();
-        final String[] targetArray = values.toArray(new String[values.size()]);
-    }
-
-    @Test
-    public final void givenUsingCoreJava_whenMapValuesConvertedToList_thenCorrect() {
-        final Map<Integer, String> sourceMap = createMap();
-
-        final List<String> targetList = new ArrayList<>(sourceMap.values());
-    }
-
-    @Test
-    public final void givenUsingGuava_whenMapValuesConvertedToList_thenCorrect() {
-        final Map<Integer, String> sourceMap = createMap();
-
-        final List<String> targetList = Lists.newArrayList(sourceMap.values());
-    }
-
-    @Test
-    public final void givenUsingCoreJava_whenMapValuesConvertedToSet_thenCorrect() {
-        final Map<Integer, String> sourceMap = createMap();
-
-        final Set<String> targetSet = new HashSet<>(sourceMap.values());
-    }
-
-    // UTIL
-
-    private final Map<Integer, String> createMap() {
-        final Map<Integer, String> sourceMap = new HashMap<>(3);
-        sourceMap.put(0, "zero");
-        sourceMap.put(1, "one");
-        sourceMap.put(2, "two");
-        return sourceMap;
-    }
-
+	public <T> List<T> setToList(Set<T> set) {
+		return new ArrayList<>(set);
+	}
 }
