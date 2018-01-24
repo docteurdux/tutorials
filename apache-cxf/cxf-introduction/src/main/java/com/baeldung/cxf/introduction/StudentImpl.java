@@ -3,7 +3,7 @@ package com.baeldung.cxf.introduction;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlType(name = "Student")
-public class StudentImpl implements Student {
+public class StudentImpl implements Entity {
     private String name;
 
     StudentImpl() {

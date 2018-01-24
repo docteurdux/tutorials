@@ -1,61 +1,70 @@
 package com.baeldung.cxf.introduction;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
 
-import org.junit.Before;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 public class StudentLiveTest {
-    private static QName SERVICE_NAME = new QName("http://introduction.cxf.baeldung.com/", "Baeldung");
-    private static QName PORT_NAME = new QName("http://introduction.cxf.baeldung.com/", "BaeldungPort");
 
-    private Service service;
-    private Baeldung baeldungProxy;
-    private BaeldungImpl baeldungImpl;
+	static {
+		((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
+	}
 
-    {
-        service = Service.create(SERVICE_NAME);
-        final String endpointAddress = "http://localhost:8080/baeldung";
-        service.addPort(PORT_NAME, SOAPBinding.SOAP11HTTP_BINDING, endpointAddress);
-    }
+	private static final SimpleLog LOG = new SimpleLog(StudentLiveTest.class.getSimpleName());
+	static {
+		LOG.setLevel(SimpleLog.LOG_LEVEL_ALL);
+	}
 
-    @Before
-    public void reinstantiateBaeldungInstances() {
-        baeldungImpl = new BaeldungImpl();
-        baeldungProxy = service.getPort(PORT_NAME, Baeldung.class);
-    }
+	private static final QName SERVICE_NAME = new QName("http://oh.my/myServiceName", "Baeldung");
+	private static final QName PORT_NAME = new QName("http://introduction.cxf.baeldung.com/", "myPortName");
+	private static final String ENDPOINT_ADDRESS = "http://localhost:8080/ohmy";
 
-    @Test
-    public void whenUsingHelloMethod_thenCorrect() {
-        final String endpointResponse = baeldungProxy.hello("Baeldung");
-        final String localResponse = baeldungImpl.hello("Baeldung");
-        assertEquals(localResponse, endpointResponse);
-    }
+	private Service service;
+	private MyWebService myWebService;
 
-    @Test
-    public void whenUsingHelloStudentMethod_thenCorrect() {
-        final Student student = new StudentImpl("John Doe");
-        final String endpointResponse = baeldungProxy.helloStudent(student);
-        final String localResponse = baeldungImpl.helloStudent(student);
-        assertEquals(localResponse, endpointResponse);
-    }
+	public StudentLiveTest() {
+		service = Service.create(SERVICE_NAME);
+		service.addPort(PORT_NAME, SOAPBinding.SOAP11HTTP_BINDING, ENDPOINT_ADDRESS);
+		myWebService = service.getPort(PORT_NAME, MyWebService.class);
+	}
 
-    @Test
-    public void usingGetStudentsMethod_thenCorrect() {
-        final Student student1 = new StudentImpl("Adam");
-        baeldungProxy.helloStudent(student1);
+	@Test
+	public void helloString() {
+		LOG.info(myWebService.sayHiTo("You"));
+	}
 
-        final Student student2 = new StudentImpl("Eve");
-        baeldungProxy.helloStudent(student2);
+	@Test
+	public void helloObject() {
+		LOG.info(myWebService.addEntity(new StudentImpl("John Doe")));
+	}
 
-        final Map<Integer, Student> students = baeldungProxy.getStudents();
-        assertEquals("Adam", students.get(1).getName());
-        assertEquals("Eve", students.get(2).getName());
-    }
+	@Test
+	public void usingGetStudentsMethod_thenCorrect() {
+		myWebService.addEntity(new StudentImpl("Student1"));
+		myWebService.addEntity(new StudentImpl("Student2"));
+		final Map<Integer, Entity> students = myWebService.getEntities();
+		for (Entry<Integer, Entity> entry : students.entrySet()) {
+			LOG.info(entry.getValue().getName());
+		}
+	}
+
+	@Test
+	public void shutdown() {
+		myWebService.shutdown();
+	}
+
+	public static void main(String args[]) throws InterruptedException {
+		Server.run();
+	}
+
 }

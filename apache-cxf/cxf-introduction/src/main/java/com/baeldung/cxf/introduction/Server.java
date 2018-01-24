@@ -2,14 +2,37 @@ package com.baeldung.cxf.introduction;
 
 import javax.xml.ws.Endpoint;
 
+import org.apache.commons.logging.impl.SimpleLog;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+
 public class Server {
-    public static void main(String args[]) throws InterruptedException {
-        BaeldungImpl implementor = new BaeldungImpl();
-        String address = "http://localhost:8080/baeldung";
-        Endpoint.publish(address, implementor);
-        System.out.println("Server ready...");
-        Thread.sleep(60 * 1000);
-        System.out.println("Server exiting");
-        System.exit(0);
-    }
+
+	static {
+		((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.INFO);
+	}
+	private static final SimpleLog LOG = new SimpleLog("Server");
+	static {
+		LOG.setLevel(SimpleLog.LOG_LEVEL_ALL);
+	}
+	
+	private Server() {
+	}
+
+	public static void run() throws InterruptedException {
+		MyWebService myWebService = new MyWebServiceImpl();
+		String address = "http://localhost:8080/ohmy";
+		Endpoint enpoint = Endpoint.publish(address, myWebService);
+		LOG.info("Server ready...");
+		while (myWebService.isAlive()) {
+			Thread.sleep(100);
+		}
+		LOG.info("Server exiting");
+		enpoint.stop();
+		
+		LOG.info("Endpoint stopped");
+		System.exit(0);
+	}
 }

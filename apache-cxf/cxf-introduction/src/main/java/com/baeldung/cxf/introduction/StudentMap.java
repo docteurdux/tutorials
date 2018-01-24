@@ -18,7 +18,7 @@ public class StudentMap {
     @XmlType(name = "StudentEntry")
     public static class StudentEntry {
         private Integer id;
-        private Student student;
+        private Entity student;
 
         public void setId(Integer id) {
             this.id = id;
@@ -28,11 +28,11 @@ public class StudentMap {
             return id;
         }
 
-        public void setStudent(Student student) {
+        public void setStudent(Entity student) {
             this.student = student;
         }
 
-        public Student getStudent() {
+        public Entity getStudent() {
             return student;
         }
     }
