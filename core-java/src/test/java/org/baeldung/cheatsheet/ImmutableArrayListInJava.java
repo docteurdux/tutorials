@@ -1,11 +1,11 @@
-package org.baeldung.java.collections;
+package org.baeldung.cheatsheet;
 
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.collections4.ListUtils;
 
-public class CoreJavaCollectionsUnitTest {
+public class ImmutableArrayListInJava {
 
 	public <T> List<T> unmodifiableList(List<T> list) {
 		return Collections.unmodifiableList(list);
